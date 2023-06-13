@@ -41,7 +41,7 @@ defmodule TwirpTest do
 
   test "clients can call services" do
     {:ok, _} = start_supervised({Client, url: "http://localhost:4002"})
-    req = Req.new(msg: "Hello there")
+    req = %Req{msg: "Hello there"}
 
     assert {:ok, %Resp{}=resp} = Client.echo(req)
     assert resp.msg == "Hello there"
@@ -49,7 +49,7 @@ defmodule TwirpTest do
 
   test "can call services with json" do
     {:ok, _} = start_supervised({Client, url: "http://localhost:4002", content_type: :json})
-    req = Req.new(msg: "Hello there")
+    req = %Req{msg: "Hello there"}
 
     assert {:ok, %Resp{}=resp} = Client.echo(req)
     assert resp.msg == "Hello there"
@@ -57,7 +57,7 @@ defmodule TwirpTest do
 
   test "users can specify deadlines" do
     {:ok, _} = start_supervised({Client, url: "http://localhost:4002"})
-    req = Req.new(msg: "Hello there")
+    req = %Req{msg: "Hello there"}
 
     assert {:error, resp} = Client.slow_echo(%{deadline: 5}, req)
     assert resp.code == :deadline_exceeded
@@ -82,7 +82,7 @@ defmodule TwirpTest do
 
     start_supervised({Client, url: "http://localhost:4002", interceptors: interceptors})
 
-    assert {:ok, req} = Client.echo(%{deadline: 1000}, Req.new(msg: "Test"))
+    assert {:ok, req} = Client.echo(%{deadline: 1000}, %Req{msg: "Test"})
     assert req.msg == "Test"
 
     assert_receive {^ref, ctx, _req}
@@ -105,7 +105,7 @@ defmodule TwirpTest do
 
     start_supervised({Client, url: "http://localhost:4002", interceptors: interceptors})
 
-    assert {:error, %Twirp.Error{}} = Client.echo(%{deadline: 1000}, Req.new(msg: "Test"))
+    assert {:error, %Twirp.Error{}} = Client.echo(%{deadline: 1000}, %Req{msg: "Test"})
 
     refute_receive {^ref, _ctx, _req}
   end

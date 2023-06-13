@@ -23,7 +23,7 @@ defmodule Twirp.Protoc.CLI do
       |> Enum.map(&add_comments_to_methods/1)
       |> Enum.map(fn desc -> Twirp.Protoc.Generator.generate(ctx, desc) end)
 
-    response = Google.Protobuf.Compiler.CodeGeneratorResponse.new(file: files)
+    response = %Google.Protobuf.Compiler.CodeGeneratorResponse{file: files, supported_features: Google.Protobuf.Compiler.CodeGeneratorResponse.Feature.value(:FEATURE_PROTO3_OPTIONAL)}
     IO.binwrite(Protobuf.Encoder.encode(response))
   end
 

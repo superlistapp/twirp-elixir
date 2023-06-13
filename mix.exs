@@ -1,8 +1,8 @@
 defmodule Twirp.MixProject do
   use Mix.Project
 
-  @version "0.8.2"
-  @source_url "https://github.com/keathley/twirp-elixir"
+  @version "0.8.3"
+  @source_url "https://github.com/superlistapp/twirp-elixir"
 
   def project do
     [
@@ -33,7 +33,7 @@ defmodule Twirp.MixProject do
       aliases: aliases(),
       preferred_cli_env: ["test.generation": :test],
       name: "Twirp",
-      source_url: "https://github.com/keathley/twirp",
+      source_url: "https://github.com/superlistapp/twirp-elixir",
       docs: docs()
     ]
   end
@@ -59,7 +59,7 @@ defmodule Twirp.MixProject do
       {:plug, "~> 1.13"},
       {:norm, "~> 0.9"},
       {:jason, "~> 1.1"},
-      {:protobuf, "~> 0.9"},
+      {:protobuf, "~> 0.12"},
       {:protox, "~> 1.6"},
       {:finch, "~> 0.6", optional: true},
       {:hackney, "~> 1.17", optional: true},

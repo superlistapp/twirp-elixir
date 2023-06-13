@@ -75,7 +75,7 @@ defmodule Twirp.Encoder do
 
   defp strip_structs(map) when is_map(map) do
     map
-    |> Map.drop([:__struct__])
+    |> Map.drop([:__struct__, :__unknown_fields__])
     |> Enum.into(%{}, fn {k, v} -> {k, strip_structs(v)} end)
   end
 

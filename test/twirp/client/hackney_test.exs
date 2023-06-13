@@ -48,15 +48,15 @@ defmodule Twirp.Client.HackneyTest do
       {:ok, body, conn} = Plug.Conn.read_body(conn)
       assert %Req{msg: "test"} == Req.decode(body)
 
-      body = Resp.encode(Resp.new(msg: "test"))
+      body = Resp.encode(%Resp{msg: "test"})
 
       conn
       |> Plug.Conn.put_resp_content_type("application/protobuf")
       |> Plug.Conn.resp(200, body)
     end)
 
-    resp = Client.echo(Req.new(msg: "test"))
-    assert {:ok, Resp.new(msg: "test")} == resp
+    resp = Client.echo(%Req{msg: "test"})
+    assert {:ok, %Resp{msg: "test"}} == resp
   end
 
   @tag client_type: :json
@@ -71,7 +71,7 @@ defmodule Twirp.Client.HackneyTest do
       |> Plug.Conn.resp(200, ~s|{"msg": "Test"}|)
     end)
 
-    assert {:ok, resp} = Client.echo(Req.new(msg: "Test"))
+    assert {:ok, resp} = Client.echo(%Req{msg: "Test"})
     assert match?(%Resp{}, resp)
     assert resp.msg == "Test"
   end
@@ -83,7 +83,7 @@ defmodule Twirp.Client.HackneyTest do
       |> Plug.Conn.resp(200, ~s|foo|)
     end)
 
-    assert {:error, resp} = Client.echo(Req.new(msg: "test"))
+    assert {:error, resp} = Client.echo(%Req{msg: "test"})
     assert match?(%Error{code: :internal}, resp)
   end
 
@@ -93,15 +93,15 @@ defmodule Twirp.Client.HackneyTest do
       {:ok, body, conn} = Plug.Conn.read_body(conn)
       assert %Req{msg: "test"} == Req.decode(body)
 
-      body = Resp.encode(Resp.new(msg: "test"))
+      body = Resp.encode(%Req{msg: "test"})
 
       conn
       |> Plug.Conn.put_resp_header("Content-Type", "application/protobuf")
       |> Plug.Conn.resp(200, body)
     end)
 
-    resp = Client.echo(Req.new(msg: "test"))
-    assert {:ok, Resp.new(msg: "test")} == resp
+    resp = Client.echo(%Req{msg: "test"})
+    assert {:ok, %Resp{msg: "test"}} == resp
   end
 
   test "no headers are returned", %{service: service} do
@@ -110,7 +110,7 @@ defmodule Twirp.Client.HackneyTest do
       |> Plug.Conn.resp(200, ~s|foo|)
     end)
 
-    assert {:error, resp} = Client.echo(Req.new(msg: "test"))
+    assert {:error, resp} = Client.echo(%Req{msg: "test"})
     assert match?(%Error{code: :internal}, resp)
     assert resp.msg == ~s|Expected response Content-Type "application/protobuf" but found nil|
   end
@@ -121,7 +121,7 @@ defmodule Twirp.Client.HackneyTest do
       |> Plug.Conn.send_resp(503, ~s|plain text error|)
     end)
 
-    assert {:error, resp} = Client.echo(Req.new(msg: "test"))
+    assert {:error, resp} = Client.echo(%Req{msg: "test"})
     assert resp.code == :unavailable
     assert resp.msg == "unavailable"
     assert resp.meta["http_error_from_intermediary"] == "true"
@@ -136,7 +136,7 @@ defmodule Twirp.Client.HackneyTest do
       |> Plug.Conn.send_resp(500, ~s|{"msg": "I have no code"}|)
     end)
 
-    assert {:error, resp} = Client.echo(Req.new(msg: "test"))
+    assert {:error, resp} = Client.echo(%Req{msg: "test"})
     assert resp.code == :unknown
     assert resp.msg == "unknown"
     assert resp.meta["http_error_from_intermediary"] == "true"
@@ -150,7 +150,7 @@ defmodule Twirp.Client.HackneyTest do
       |> Plug.Conn.send_resp(500, ~s|{"code": "keathley", "msg": "incorrect code"}|)
     end)
 
-    assert {:error, resp} = Client.echo(Req.new(msg: "test"))
+    assert {:error, resp} = Client.echo(%Req{msg: "test"})
     assert resp.code == :internal
     assert resp.msg == "Invalid Twirp error code: keathley"
     assert resp.meta["invalid_code"] == "keathley"
@@ -165,14 +165,14 @@ defmodule Twirp.Client.HackneyTest do
       |> Plug.Conn.send_resp(302, url)
     end)
 
-    assert {:error, resp} = Client.echo(Req.new(msg: "test"))
+    assert {:error, resp} = Client.echo(%Req{msg: "test"})
     assert match?(%Error{code: :internal}, resp)
     assert resp.meta["http_error_from_intermediary"] == "true"
     assert resp.meta["not_a_twirp_error_because"] == "Redirects not allowed on Twirp requests"
   end
 
   test "connect timeouts", %{service: _service} do
-    assert {:error, resp} = Client.echo(%{connect_deadline: 0}, Req.new(msg: "test"))
+    assert {:error, resp} = Client.echo(%{connect_deadline: 0}, %Req{msg: "test"})
     assert resp.code == :deadline_exceeded
     assert resp.meta["error_type"] == "timeout"
   end
@@ -183,7 +183,7 @@ defmodule Twirp.Client.HackneyTest do
       :timer.sleep(1_000)
     end)
 
-    assert {:error, resp} = Client.echo(%{deadline: 1}, Req.new(msg: "test"))
+    assert {:error, resp} = Client.echo(%{deadline: 1}, %Req{msg: "test"})
     assert resp.code == :deadline_exceeded
     assert resp.meta["error_type"] == "timeout"
   end
@@ -191,7 +191,7 @@ defmodule Twirp.Client.HackneyTest do
   test "service is down", %{service: service} do
     Bypass.down(service)
 
-    assert {:error, resp} = Client.echo(Req.new(msg: "test"))
+    assert {:error, resp} = Client.echo(%Req{msg: "test"})
     assert resp.code == :unavailable
   end
 
@@ -200,23 +200,23 @@ defmodule Twirp.Client.HackneyTest do
     Twirp.Client.Stub.new(echo: fn %{msg: "foo"} ->
       Error.unavailable("test")
     end)
-    assert {:error, %Error{code: :unavailable}} = Client.echo(Req.new(msg: "foo"))
+    assert {:error, %Error{code: :unavailable}} = Client.echo(%Req{msg: "foo"})
 
     Twirp.Client.Stub.new(echo: fn %{msg: "foo"} ->
-      Resp.new(msg: "foo")
+      %Resp{msg: "foo"}
     end)
-    assert {:ok, %Resp{msg: "foo"}} = Client.echo(Req.new(msg: "foo"))
+    assert {:ok, %Resp{msg: "foo"}} = Client.echo(%Req{msg: "foo"})
 
     assert_raise Twirp.Client.StubError, ~r/does not define/, fn ->
       Twirp.Client.Stub.new()
-      Client.echo(Req.new(msg: "foo"))
+      Client.echo(%Req{msg: "foo"})
     end
 
     assert_raise Twirp.Client.StubError, ~r/expected to return/, fn ->
       Twirp.Client.Stub.new(echo: fn _ ->
-        {:ok, Req.new(msg: "test")}
+        {:ok, %Req{msg: "test"}}
       end)
-      Client.echo(Req.new(msg: "foo"))
+      Client.echo(%Req{msg: "foo"})
     end
   end
 end

@@ -7,10 +7,10 @@ defmodule Twirp.Protoc.Generator do
   def generate(ctx, desc) do
     name = new_file_name(desc.name)
 
-    Google.Protobuf.Compiler.CodeGeneratorResponse.File.new(
+    %Google.Protobuf.Compiler.CodeGeneratorResponse.File{
       name: name,
       content: generate_content(ctx, desc)
-    )
+                               }
   end
 
   defp new_file_name(name) do
