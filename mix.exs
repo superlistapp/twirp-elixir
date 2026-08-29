@@ -1,7 +1,7 @@
 defmodule Twirp.MixProject do
   use Mix.Project
 
-  @version "0.8.3"
+  @version "0.8.5"
   @source_url "https://github.com/superlistapp/twirp-elixir"
 
   def project do
@@ -59,9 +59,7 @@ defmodule Twirp.MixProject do
       {:plug, "~> 1.13"},
       {:norm, "~> 0.9"},
       {:jason, "~> 1.1"},
-      {:protobuf, "~> 0.13"},
-      ## {:protox, "~> 1.6"},
-      {:google_protos, "~> 0.3"},
+      {:protobuf, "~> 0.13 or >= 0.16.1"},
       {:finch, "~> 0.6", optional: true},
       {:hackney, "~> 1.17", optional: true},
       {:telemetry, "~> 0.4 or ~> 1.0"},
