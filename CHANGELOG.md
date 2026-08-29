@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 0.8.5
+* Remove `google_protos` dependency. `protobuf` >= 0.14 vendors the same well-known types (Timestamp, Struct, Any, Duration, Empty, FieldMask, wrappers), so keeping both caused `mix release` to fail with "Duplicated modules" for any consumer on a newer `protobuf`. Widen the `protobuf` requirement to `~> 0.13 or >= 0.16.1`.
+
 ## 0.7.4
 * Fix bug in decoding response bodies
 * Fix decoding nested strings

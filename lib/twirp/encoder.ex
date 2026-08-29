@@ -23,27 +23,13 @@ defmodule Twirp.Encoder do
   def json?(content_type), do: content_type == @json
 
   def decode(bytes, input, @json <> _) when is_binary(bytes) do
-    # TODO - Write tests for atoms! failing and for decoding failing
-    # TODO - Do better validation of json input
-    case Jason.decode(bytes, keys: :atoms!) do
-      {:ok, body} ->
-        {:ok, input.new(body)}
-
-      {:error, e} ->
-        {:error, e}
-    end
+    Protobuf.JSON.decode(bytes, input)
   end
 
   def decode(map, input, @json <> _) do
-    struct =
-      map
-      |> to_atom_keys
-      |> input.new
-
-    {:ok, struct}
-  rescue
-    e ->
-      {:error, e}
+    map
+    |> to_string_keys()
+    |> Protobuf.JSON.from_decoded(input)
   end
 
   def decode(bytes, input, @proto <> _) do
@@ -75,27 +61,27 @@ defmodule Twirp.Encoder do
 
   defp strip_structs(map) when is_map(map) do
     map
-    |> Map.drop([:__struct__, :__unknown_fields__])
+    |> Map.drop([:__struct__, :__unknown_fields__, :__protobuf__, :__pb_extensions__])
     |> Enum.into(%{}, fn {k, v} -> {k, strip_structs(v)} end)
   end
 
   defp strip_structs(any), do: any
 
-  defp to_atom_keys(map) when is_map(map) do
+  defp to_string_keys(map) when is_map(map) do
     for {key, value} <- map, into: %{} do
-      k = if is_binary(key), do: String.to_existing_atom(key), else: key
-      v = to_atom_keys(value)
+      k = if is_atom(key), do: Atom.to_string(key), else: key
+      v = to_string_keys(value)
       {k, v}
     end
   end
 
-  defp to_atom_keys(list) when is_list(list) do
+  defp to_string_keys(list) when is_list(list) do
     for item <- list do
-      to_atom_keys(item)
+      to_string_keys(item)
     end
   end
 
-  defp to_atom_keys(other) do
+  defp to_string_keys(other) do
     other
   end
 end

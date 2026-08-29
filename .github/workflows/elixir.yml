@@ -12,14 +12,14 @@ env:
 jobs:
   deps:
     name: Install Dependencies
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
-        elixir: [1.11]
-        otp: [23.3]
+        elixir: [1.18.5]
+        otp: [28.5.0.5]
     steps:
     - name: checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: setup
@@ -28,7 +28,7 @@ jobs:
         elixir-version: ${{ matrix.elixir }}
         otp-version: ${{ matrix.otp }}
     - name: Retrieve Cached Dependencies
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       id: mix-cache
       with:
         path: |
@@ -49,13 +49,13 @@ jobs:
   analyze:
     name: Analysis
     needs: deps
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
-        elixir: [1.11]
-        otp: [23.3]
+        elixir: [1.18.5]
+        otp: [28.5.0.5]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Setup elixir
@@ -64,7 +64,7 @@ jobs:
         elixir-version: ${{ matrix.elixir }}
         otp-version: ${{ matrix.otp }}
     - name: Retrieve Cached Dependencies
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       id: mix-cache
       with:
         path: |
@@ -75,18 +75,18 @@ jobs:
     - name: Run Credo
       run: mix credo
     - name: Run Dialyzer
-      run: mix dialyzer --no-check --halt-exit-status
+      run: mix dialyzer --no-check
 
   tests:
     name: Tests
     needs: deps
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
-        elixir: [1.11]
-        otp: [23.3]
+        elixir: [1.18.5]
+        otp: [28.5.0.5]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - uses: erlef/setup-beam@v1
@@ -94,7 +94,7 @@ jobs:
         elixir-version: ${{ matrix.elixir }}
         otp-version: ${{ matrix.otp }}
     - name: Retrieve Cached Dependencies
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       id: mix-cache
       with:
         path: |

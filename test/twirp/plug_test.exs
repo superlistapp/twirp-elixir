@@ -228,7 +228,7 @@ defmodule Twirp.PlugTest do
     assert content_type(conn) == "application/json"
     resp = Jason.decode!(conn.resp_body)
     assert resp["code"] == "internal"
-    assert resp["msg"] == "Handler method make_hat expected to return one of Elixir.Twirp.PlugTest.Hat or Twirp.Error but returned %Twirp.PlugTest.Size{inches: 10, __unknown_fields__: []}"
+    assert resp["msg"] == "Handler method make_hat expected to return one of Elixir.Twirp.PlugTest.Hat or Twirp.Error but returned #{inspect(%Size{inches: 10})}"
   end
 
   test "handler doesn't return an error, struct or map" do
@@ -262,7 +262,7 @@ defmodule Twirp.PlugTest do
 
     test "returns errors if the payload is incorrect" do
       req = json_req("MakeHat", %{})
-      req = Map.put(req, :body_params, %{"keathley" => "bar"})
+      req = Map.put(req, :body_params, %{"inches" => "not a number"})
       conn = call(req)
 
       assert conn.status == 404

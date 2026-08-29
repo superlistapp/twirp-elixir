@@ -8,8 +8,8 @@ defmodule Twirp.Protoc.CLI do
   def main(_) do
     # https://groups.google.com/forum/#!topic/elixir-lang-talk/T5enez_BBTI
     :io.setopts(:standard_io, encoding: :latin1)
-    bin = IO.binread(:all)
-    request = Protobuf.Decoder.decode(bin, Google.Protobuf.Compiler.CodeGeneratorRequest)
+    bin = IO.binread(:eof)
+    request = Protobuf.decode(bin, Google.Protobuf.Compiler.CodeGeneratorRequest)
 
     ctx =
       %Protobuf.Protoc.Context{}
